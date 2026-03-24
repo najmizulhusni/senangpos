@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Phone, Save, Mail, Calendar, Shield, Globe, HelpCircle, Send, MessageCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { User, Phone, Save, Mail, Calendar, Shield, HelpCircle, Send, MessageCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
@@ -127,17 +127,6 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                   <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0"><Calendar size={14} className="text-gray-500" /></div>
                   <span className="text-xs">{t('memberSince')} {user?.created_at ? new Date(user.created_at).toLocaleDateString(language === 'ms' ? 'ms-MY' : 'en-US', { month: 'short', year: 'numeric' }) : '-'}</span>
                 </div>
-              </div>
-            </div>
-
-            {/* Language Toggle */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <Globe size={18} className="text-emerald-600" /> {t('language')}
-              </h3>
-              <div className="flex items-center bg-gray-100 rounded-xl p-1">
-                <button onClick={() => setLanguage('en')} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${language === 'en' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>🇬🇧 EN</button>
-                <button onClick={() => setLanguage('ms')} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${language === 'ms' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>🇲🇾 BM</button>
               </div>
             </div>
 

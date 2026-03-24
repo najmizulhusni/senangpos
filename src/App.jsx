@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Plus, AlertTriangle, RefreshCw, X, Trash2, DollarSign, ShoppingCart, BarChart3, Package, History, Calendar, Check } from 'lucide-react';
+import { Plus, AlertTriangle, RefreshCw, X, Trash2, DollarSign, ShoppingCart, BarChart3, Package, History, Calendar, Check, MapPin } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
@@ -89,9 +89,13 @@ function POSApp() {
   const [toast, setToast] = useState(null);
   const [showQRConfirm, setShowQRConfirm] = useState(false);
   const [pendingTotal, setPendingTotal] = useState(0);
+  const [todayLocation, setTodayLocation] = useState(() => localStorage.getItem('senangpos_location') || '');
+  const [showLocationInput, setShowLocationInput] = useState(false);
+  const [locationDraft, setLocationDraft] = useState('');
 
   const useSupabase = isSupabaseConfigured() && supabase && (user || isDemo);
   const showToast = (msg, type = 'success') => { setToast({ message: msg, type }); setTimeout(() => setToast(null), 3000); };
+  const saveLocation = () => { const loc = locationDraft.trim(); setTodayLocation(loc); localStorage.setItem('senangpos_location', loc); setShowLocationInput(false); if (loc) showToast(t('locationSaved')); };
 
   useEffect(() => { const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' })), 1000); return () => clearInterval(timer); }, []);
   
@@ -269,7 +273,7 @@ function POSApp() {
           {view === 'pos' && (
             <div className="flex flex-col lg:flex-row h-full">
               <div className="flex-1 overflow-auto p-4">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                   <div>
                     <h2 className="text-xl font-bold text-gray-800">{t('menu')}</h2>
                     <p className="text-sm text-gray-500">{currentTime}</p>
@@ -277,6 +281,39 @@ function POSApp() {
                   <button onClick={openAddModal} className="bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm">
                     <Plus size={18} /> {t('addItem')}
                   </button>
+                </div>
+
+                {/* Today's Location Bar */}
+                <div className="mb-4">
+                  {showLocationInput ? (
+                    <div className="flex items-center gap-2 bg-white border border-emerald-200 rounded-xl p-2 shadow-sm">
+                      <MapPin size={18} className="text-emerald-600 ml-2 flex-shrink-0" />
+                      <input
+                        type="text"
+                        value={locationDraft}
+                        onChange={(e) => setLocationDraft(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && saveLocation()}
+                        placeholder={t('locationPlaceholder')}
+                        className="flex-1 text-sm border-0 bg-transparent focus:outline-none min-w-0"
+                        autoFocus
+                      />
+                      <button onClick={saveLocation} className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition-all flex-shrink-0">{t('save')}</button>
+                      <button onClick={() => setShowLocationInput(false)} className="p-1.5 text-gray-400 hover:text-gray-600 flex-shrink-0"><X size={16} /></button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setLocationDraft(todayLocation); setShowLocationInput(true); }}
+                      className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all w-full text-left group"
+                    >
+                      <MapPin size={16} className={`flex-shrink-0 ${todayLocation ? 'text-emerald-600' : 'text-gray-400'}`} />
+                      {todayLocation ? (
+                        <span className="text-sm text-gray-700 truncate">{todayLocation}</span>
+                      ) : (
+                        <span className="text-sm text-gray-400">{t('setTodayLocation')}</span>
+                      )}
+                      <span className="ml-auto text-xs text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">{t('change')}</span>
+                    </button>
+                  )}
                 </div>
                 <div className="mb-6">
                   <h3 className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">{t('mainDishes')}</h3>
