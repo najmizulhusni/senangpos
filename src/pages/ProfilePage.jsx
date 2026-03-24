@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Phone, Save, Mail, Calendar, Shield, HelpCircle, Send, MessageCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { User, Phone, Save, Mail, Calendar, Shield, HelpCircle, Send, MessageCircle, CheckCircle, Loader2, MapPin, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
@@ -30,6 +30,15 @@ export default function ProfilePage({ initialTab = 'profile' }) {
   });
   const [supportForm, setSupportForm] = useState({ subject: '', message: '' });
 
+  const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  const [locationSchedule, setLocationSchedule] = useState(() => {
+    try {
+      const saved = localStorage.getItem('senangpos_locations');
+      return saved ? JSON.parse(saved) : { monday: '', tuesday: '', wednesday: '', thursday: '', friday: '', saturday: '', sunday: '' };
+    } catch { return { monday: '', tuesday: '', wednesday: '', thursday: '', friday: '', saturday: '', sunday: '' }; }
+  });
+  const [locationSaving, setLocationSaving] = useState(false);
+
   useEffect(() => {
     if (user && activeTab === 'support') fetchTickets();
   }, [user, activeTab]);
@@ -55,6 +64,14 @@ export default function ProfilePage({ initialTab = 'profile' }) {
     const { error } = await updateProfile(form);
     if (!error) setSuccess(t('profileUpdated'));
     setLoading(false);
+    setTimeout(() => setSuccess(''), 3000);
+  };
+
+  const handleSaveLocations = () => {
+    setLocationSaving(true);
+    localStorage.setItem('senangpos_locations', JSON.stringify(locationSchedule));
+    setSuccess(t('locationsSaved'));
+    setLocationSaving(false);
     setTimeout(() => setSuccess(''), 3000);
   };
 
@@ -156,6 +173,9 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                 <button onClick={() => setActiveTab('profile')} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${activeTab === 'profile' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}>
                   <User size={16} /> {t('profileInfo')}
                 </button>
+                <button onClick={() => setActiveTab('locations')} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${activeTab === 'locations' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}>
+                  <MapPin size={16} /> {t('locations')}
+                </button>
                 <button onClick={() => setActiveTab('support')} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${activeTab === 'support' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}>
                   <HelpCircle size={16} /> {t('support')}
                 </button>
@@ -187,6 +207,58 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                 <button onClick={handleSave} disabled={loading} className="mt-5 bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-all flex items-center gap-2 disabled:opacity-50">
                   <Save size={18} /> {loading ? t('saving') : t('saveChanges')}
                 </button>
+              </div>
+            )}
+
+            {/* Location Schedule Tab */}
+            {activeTab === 'locations' && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <MapPin size={20} className="text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">{t('weeklySchedule')}</h3>
+                    <p className="text-sm text-gray-500">{t('weeklyScheduleDesc')}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 mt-5">
+                  {DAYS.map(day => {
+                    const todayDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][new Date().getDay()];
+                    const isToday = day === todayDay;
+                    return (
+                      <div key={day} className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${isToday ? 'border-emerald-200 bg-emerald-50/50' : 'border-gray-100'}`}>
+                        <div className={`w-20 flex-shrink-0 text-sm font-semibold ${isToday ? 'text-emerald-700' : 'text-gray-600'}`}>
+                          {t(day)}
+                          {isToday && <span className="block text-xs font-normal text-emerald-500">{t('today')}</span>}
+                        </div>
+                        <input
+                          type="text"
+                          value={locationSchedule[day]}
+                          onChange={(e) => setLocationSchedule({ ...locationSchedule, [day]: e.target.value })}
+                          placeholder={t('locationPlaceholder')}
+                          className={`flex-1 border rounded-lg px-3 py-2.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition-all min-w-0 ${isToday ? 'border-emerald-200 bg-white' : 'border-gray-200'}`}
+                        />
+                        {locationSchedule[day] && (
+                          <button onClick={() => setLocationSchedule({ ...locationSchedule, [day]: '' })} className="p-1.5 text-gray-400 hover:text-gray-600 flex-shrink-0">
+                            <X size={14} />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <button onClick={handleSaveLocations} disabled={locationSaving} className="mt-5 w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                  <Save size={18} /> {locationSaving ? t('saving') : t('saveSchedule')}
+                </button>
+
+                <div className="mt-5 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                  <p className="text-sm text-emerald-700 flex items-center gap-2">
+                    <MapPin size={16} /> {t('locationNote')}
+                  </p>
+                </div>
               </div>
             )}
 

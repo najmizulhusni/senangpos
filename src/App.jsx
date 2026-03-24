@@ -89,13 +89,21 @@ function POSApp() {
   const [toast, setToast] = useState(null);
   const [showQRConfirm, setShowQRConfirm] = useState(false);
   const [pendingTotal, setPendingTotal] = useState(0);
-  const [todayLocation, setTodayLocation] = useState(() => localStorage.getItem('senangpos_location') || '');
-  const [showLocationInput, setShowLocationInput] = useState(false);
-  const [locationDraft, setLocationDraft] = useState('');
+
+  // Get today's location from weekly schedule
+  const getTodayLocation = () => {
+    try {
+      const saved = localStorage.getItem('senangpos_locations');
+      if (!saved) return '';
+      const schedule = JSON.parse(saved);
+      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      return schedule[days[new Date().getDay()]] || '';
+    } catch { return ''; }
+  };
+  const todayLocation = getTodayLocation();
 
   const useSupabase = isSupabaseConfigured() && supabase && (user || isDemo);
   const showToast = (msg, type = 'success') => { setToast({ message: msg, type }); setTimeout(() => setToast(null), 3000); };
-  const saveLocation = () => { const loc = locationDraft.trim(); setTodayLocation(loc); localStorage.setItem('senangpos_location', loc); setShowLocationInput(false); if (loc) showToast(t('locationSaved')); };
 
   useEffect(() => { const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' })), 1000); return () => clearInterval(timer); }, []);
   
@@ -283,38 +291,13 @@ function POSApp() {
                   </button>
                 </div>
 
-                {/* Today's Location Bar */}
-                <div className="mb-4">
-                  {showLocationInput ? (
-                    <div className="flex items-center gap-2 bg-white border border-emerald-200 rounded-xl p-2 shadow-sm">
-                      <MapPin size={18} className="text-emerald-600 ml-2 flex-shrink-0" />
-                      <input
-                        type="text"
-                        value={locationDraft}
-                        onChange={(e) => setLocationDraft(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && saveLocation()}
-                        placeholder={t('locationPlaceholder')}
-                        className="flex-1 text-sm border-0 bg-transparent focus:outline-none min-w-0"
-                        autoFocus
-                      />
-                      <button onClick={saveLocation} className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition-all flex-shrink-0">{t('save')}</button>
-                      <button onClick={() => setShowLocationInput(false)} className="p-1.5 text-gray-400 hover:text-gray-600 flex-shrink-0"><X size={16} /></button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => { setLocationDraft(todayLocation); setShowLocationInput(true); }}
-                      className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all w-full text-left group"
-                    >
-                      <MapPin size={16} className={`flex-shrink-0 ${todayLocation ? 'text-emerald-600' : 'text-gray-400'}`} />
-                      {todayLocation ? (
-                        <span className="text-sm text-gray-700 truncate">{todayLocation}</span>
-                      ) : (
-                        <span className="text-sm text-gray-400">{t('setTodayLocation')}</span>
-                      )}
-                      <span className="ml-auto text-xs text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">{t('change')}</span>
-                    </button>
-                  )}
-                </div>
+                {/* Today's Location - auto from schedule */}
+                {todayLocation && (
+                  <div className="mb-4 flex items-center gap-2 bg-white border border-emerald-200 rounded-xl px-4 py-2.5 shadow-sm">
+                    <MapPin size={16} className="text-emerald-600 flex-shrink-0" />
+                    <span className="text-sm text-gray-700 truncate">{todayLocation}</span>
+                  </div>
+                )}
                 <div className="mb-6">
                   <h3 className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">{t('mainDishes')}</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
