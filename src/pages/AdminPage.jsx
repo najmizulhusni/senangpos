@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, ShoppingBag, DollarSign, TrendingUp, Store, Search, Eye, CheckCircle, Clock, RefreshCw, LogOut, LayoutDashboard, MessageSquare, Shield, Menu, X } from 'lucide-react';
+import { Users, ShoppingBag, DollarSign, TrendingUp, Store, Search, Eye, CheckCircle, Clock, RefreshCw, LogOut, LayoutDashboard, MessageSquare, Shield, Menu, X, Send } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
@@ -15,6 +15,9 @@ export default function AdminPage() {
   const [dateRange, setDateRange] = useState('week');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [replyingTicket, setReplyingTicket] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [replyLoading, setReplyLoading] = useState(false);
 
   // Initial fetch
   useEffect(() => {
@@ -82,6 +85,21 @@ export default function AdminPage() {
 
   // Stats calculations
   const totalRevenue = allOrders.reduce((sum, o) => sum + parseFloat(o.total || 0), 0);
+
+  const handleReplyTicket = async () => {
+    if (!replyText.trim() || !replyingTicket) return;
+    setReplyLoading(true);
+    await supabase.from('support_tickets').update({
+      admin_reply: replyText.trim(),
+      replied_at: new Date().toISOString(),
+      status: 'resolved',
+      resolved_at: new Date().toISOString(),
+    }).eq('id', replyingTicket.id);
+    setReplyingTicket(null);
+    setReplyText('');
+    setReplyLoading(false);
+    fetchAllData();
+  };
   const totalOrders = allOrders.length;
   const activeUsers = users.filter(u => !u.is_admin).length;
   const openTickets = tickets.filter(t => t.status === 'open').length;
@@ -508,8 +526,20 @@ export default function AdminPage() {
                           <h4 className="font-semibold text-gray-800 mb-1">{ticket.subject}</h4>
                           <p className="text-sm text-gray-600 mb-2">{ticket.message}</p>
                           <p className="text-xs text-gray-400">From: {ticket.profiles?.full_name || 'Unknown'} ({ticket.profiles?.shop_name || '-'})</p>
+                          
+                          {/* Show existing reply */}
+                          {ticket.admin_reply && (
+                            <div className="mt-3 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Shield size={14} className="text-emerald-600" />
+                                <span className="text-xs font-semibold text-emerald-700">Your Reply</span>
+                                {ticket.replied_at && <span className="text-xs text-emerald-500">{new Date(ticket.replied_at).toLocaleString('en-MY')}</span>}
+                              </div>
+                              <p className="text-sm text-emerald-800">{ticket.admin_reply}</p>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col gap-2">
                           {ticket.status === 'open' && (
                             <button 
                               onClick={async () => {
@@ -522,6 +552,14 @@ export default function AdminPage() {
                             </button>
                           )}
                           {ticket.status !== 'resolved' && (
+                            <button 
+                              onClick={() => { setReplyingTicket(ticket); setReplyText(ticket.admin_reply || ''); }}
+                              className="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium hover:bg-emerald-200 transition-all flex items-center gap-1"
+                            >
+                              <Send size={12} /> Reply
+                            </button>
+                          )}
+                          {ticket.status !== 'resolved' && !ticket.admin_reply && (
                             <button 
                               onClick={async () => {
                                 await supabase.from('support_tickets').update({ status: 'resolved', resolved_at: new Date().toISOString() }).eq('id', ticket.id);
@@ -542,6 +580,49 @@ export default function AdminPage() {
           )}
         </main>
       </div>
+
+      {/* Reply Modal */}
+      {replyingTicket && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold text-lg text-gray-800">Reply to Ticket</h3>
+              <button onClick={() => { setReplyingTicket(null); setReplyText(''); }} className="text-gray-400 hover:text-gray-600 p-1"><X size={20} /></button>
+            </div>
+            
+            <div className="mb-4 p-4 bg-gray-50 rounded-xl">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${replyingTicket.status === 'open' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
+                  {replyingTicket.status === 'open' ? 'Open' : 'In Progress'}
+                </span>
+                <span className="text-xs text-gray-400">{replyingTicket.profiles?.full_name || 'Unknown'}</span>
+              </div>
+              <h4 className="font-semibold text-gray-800 text-sm">{replyingTicket.subject}</h4>
+              <p className="text-sm text-gray-600 mt-1">{replyingTicket.message}</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Your Reply</label>
+              <textarea
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Type your reply to the seller..."
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none resize-none transition-all"
+                rows={4}
+                autoFocus
+              />
+            </div>
+
+            <div className="flex gap-3 mt-5">
+              <button onClick={handleReplyTicket} disabled={!replyText.trim() || replyLoading} className="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-semibold hover:bg-emerald-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
+                {replyLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Send size={16} />}
+                Send Reply & Resolve
+              </button>
+              <button onClick={() => { setReplyingTicket(null); setReplyText(''); }} className="px-6 py-3 bg-gray-100 rounded-xl font-semibold hover:bg-gray-200 transition-all">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
