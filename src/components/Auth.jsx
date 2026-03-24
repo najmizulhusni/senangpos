@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShoppingCart, Mail, Lock, User, Store, ArrowLeft, Eye, EyeOff, Shield } from 'lucide-react';
+import { ShoppingCart, Mail, Lock, User, Store, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -112,14 +112,10 @@ export default function Auth({ onSkip }) {
           )}
         </div>
 
-        <div className="mt-4 pt-4 border-t relative z-10 space-y-2">
-          <button onClick={onSkip} className="w-full py-2.5 text-gray-500 hover:text-gray-700 text-sm">{t('tryWithoutAccount')}</button>
-          <button 
-            onClick={() => { setMode('login'); setForm({ ...form, email: 'admin@senangpos.com', password: '' }); }}
-            className="w-full py-2.5 text-purple-600 hover:text-purple-700 text-sm flex items-center justify-center gap-2"
-          >
+        <div className="mt-4 pt-4 border-t relative z-10">
+          <button onClick={onSkip} className="w-full py-2.5 text-emerald-600 hover:text-emerald-700 text-sm font-medium flex items-center justify-center gap-2">
             <Shield size={14} />
-            {language === 'ms' ? 'Log Masuk Admin' : 'Admin Login'}
+            {language === 'ms' ? 'Demo Account' : 'Demo Account'}
           </button>
         </div>
       </div>
