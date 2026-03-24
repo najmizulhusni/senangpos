@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, Phone, Save, Mail, Calendar, Shield, Globe, HelpCircle, Send, MessageCircle, ChevronDown, Bug, Lightbulb, CreditCard, UserCog, MoreHorizontal, Clock, CheckCircle, Loader2 } from 'lucide-react';
+import { User, Phone, Save, Mail, Calendar, Shield, Globe, HelpCircle, Send, MessageCircle, ChevronDown, Bug, Lightbulb, CreditCard, UserCog, MoreHorizontal, Clock, CheckCircle, Loader2, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
@@ -39,12 +39,10 @@ export default function ProfilePage({ initialTab = 'profile' }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Fetch user's tickets
   useEffect(() => {
     if (user && activeTab === 'support') fetchTickets();
   }, [user, activeTab]);
 
-  // Real-time ticket updates
   useEffect(() => {
     if (!supabase || !user) return;
     const sub = supabase.channel('my-tickets')
@@ -96,7 +94,7 @@ export default function ProfilePage({ initialTab = 'profile' }) {
 
   return (
     <div className="h-full overflow-auto bg-gray-50">
-      <div className="max-w-5xl mx-auto p-4 lg:p-6">
+      <div className="max-w-7xl mx-auto p-4 lg:p-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-800">{t('myProfile')}</h1>
           <p className="text-gray-500 text-sm mt-1">{t('manageAccount')}</p>
@@ -113,10 +111,11 @@ export default function ProfilePage({ initialTab = 'profile' }) {
           </div>
         )}
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left Column */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Left Sidebar - Profile Card */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Profile Card */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
               <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-center">
                 <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
                   <User size={40} className="text-white" />
@@ -126,35 +125,54 @@ export default function ProfilePage({ initialTab = 'profile' }) {
               </div>
               <div className="p-4 space-y-3">
                 <div className="flex items-center gap-3 text-gray-600 text-sm">
-                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center"><Mail size={14} className="text-gray-500" /></div>
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0"><Mail size={14} className="text-gray-500" /></div>
                   <span className="truncate">{user?.email}</span>
                 </div>
                 {form.phone && (
                   <div className="flex items-center gap-3 text-gray-600 text-sm">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center"><Phone size={14} className="text-gray-500" /></div>
+                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0"><Phone size={14} className="text-gray-500" /></div>
                     <span>{form.phone}</span>
                   </div>
                 )}
                 <div className="flex items-center gap-3 text-gray-600 text-sm">
-                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center"><Calendar size={14} className="text-gray-500" /></div>
-                  <span>{t('memberSince')} {user?.created_at ? new Date(user.created_at).toLocaleDateString(language === 'ms' ? 'ms-MY' : 'en-US', { month: 'short', year: 'numeric' }) : '-'}</span>
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0"><Calendar size={14} className="text-gray-500" /></div>
+                  <span className="text-xs">{t('memberSince')} {user?.created_at ? new Date(user.created_at).toLocaleDateString(language === 'ms' ? 'ms-MY' : 'en-US', { month: 'short', year: 'numeric' }) : '-'}</span>
                 </div>
               </div>
             </div>
 
+            {/* Language Toggle */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
               <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <Globe size={18} className="text-emerald-600" /> {t('language')}
               </h3>
               <div className="flex items-center bg-gray-100 rounded-xl p-1">
-                <button onClick={() => setLanguage('en')} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${language === 'en' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>🇬🇧 English</button>
-                <button onClick={() => setLanguage('ms')} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${language === 'ms' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>🇲🇾 Melayu</button>
+                <button onClick={() => setLanguage('en')} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${language === 'en' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>🇬🇧 EN</button>
+                <button onClick={() => setLanguage('ms')} className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${language === 'ms' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>🇲🇾 BM</button>
+              </div>
+            </div>
+
+            {/* Account Status */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <Shield size={16} className="text-emerald-600" /> {t('accountStatus')}
+              </h3>
+              <div className="space-y-2">
+                <div className="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-100">
+                  <p className="text-xs text-emerald-600 font-medium">{t('status')}</p>
+                  <p className="text-sm font-bold text-emerald-700 mt-1">{t('active')}</p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-100">
+                  <p className="text-xs text-blue-600 font-medium">{t('plan')}</p>
+                  <p className="text-sm font-bold text-blue-700 mt-1">{t('free')}</p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Right Content Area */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Tab Navigation */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-1.5">
               <div className="flex gap-1">
                 <button onClick={() => setActiveTab('profile')} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${activeTab === 'profile' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}>
@@ -185,7 +203,7 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">{t('address')}</label>
-                    <textarea placeholder={t('address')} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none resize-none transition-all" rows={2} />
+                    <textarea placeholder={t('address')} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none resize-none transition-all" rows={3} />
                   </div>
                 </div>
                 <button onClick={handleSave} disabled={loading} className="mt-5 bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-all flex items-center gap-2 disabled:opacity-50">
@@ -280,7 +298,7 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                         return (
                           <div key={ticket.id} className="border border-gray-100 rounded-xl p-4 hover:border-gray-200 transition-all">
                             <div className="flex items-start justify-between gap-3 mb-2">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <span className={`text-xs font-medium px-2 py-1 rounded-full ${badge.cls}`}>{badge.text}</span>
                                 <span className="text-xs text-gray-400">{new Date(ticket.created_at).toLocaleDateString(language === 'ms' ? 'ms-MY' : 'en-MY', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                               </div>
@@ -307,27 +325,6 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                 </div>
               </>
             )}
-
-            {/* Account Status */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <Shield size={20} className="text-emerald-600" /> {t('accountStatus')}
-              </h3>
-              <div className="grid sm:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 text-center border border-emerald-100">
-                  <p className="text-sm text-emerald-600 font-medium">{t('status')}</p>
-                  <p className="text-xl font-bold text-emerald-700 mt-1">{t('active')}</p>
-                </div>
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 text-center border border-blue-100">
-                  <p className="text-sm text-blue-600 font-medium">{t('plan')}</p>
-                  <p className="text-xl font-bold text-blue-700 mt-1">{t('free')}</p>
-                </div>
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 text-center border border-purple-100">
-                  <p className="text-sm text-purple-600 font-medium">{t('orders')}</p>
-                  <p className="text-xl font-bold text-purple-700 mt-1">∞</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
