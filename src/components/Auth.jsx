@@ -113,8 +113,7 @@ export default function Auth({ onSkip }) {
         </div>
 
         <div className="mt-4 pt-4 border-t relative z-10">
-          <button onClick={onSkip} className="w-full py-2.5 text-emerald-600 hover:text-emerald-700 text-sm font-medium flex items-center justify-center gap-2">
-            <Shield size={14} />
+          <button onClick={onSkip} className="w-full py-2.5 text-emerald-600 hover:text-emerald-700 text-sm font-medium">
             {language === 'ms' ? 'Demo Account' : 'Demo Account'}
           </button>
         </div>
