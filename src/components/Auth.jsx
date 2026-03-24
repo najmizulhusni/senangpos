@@ -92,14 +92,19 @@ export default function Auth({ onSkip }) {
             <div className="relative">
               <Lock className="absolute left-3 top-3.5 text-gray-400" size={18} />
               <input type={showPassword ? 'text' : 'password'} placeholder={t('password')} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className={inputClass} required minLength={6} />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600">
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600" aria-label={showPassword ? 'Hide password' : 'Show password'}>
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           )}
 
-          <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
-            {loading ? '...' : mode === 'login' ? t('login') : mode === 'register' ? t('register') : t('sendResetEmail')}
+          <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>{language === 'ms' ? 'Memproses...' : 'Processing...'}</span>
+              </>
+            ) : mode === 'login' ? t('login') : mode === 'register' ? t('register') : t('sendResetEmail')}
           </button>
         </form>
 
@@ -112,9 +117,9 @@ export default function Auth({ onSkip }) {
           )}
         </div>
 
-        <div className="mt-4 pt-4 border-t relative z-10">
-          <button onClick={onSkip} className="w-full py-2.5 text-emerald-600 hover:text-emerald-700 text-sm font-medium">
-            {language === 'ms' ? 'Demo Account' : 'Demo Account'}
+        <div className="mt-4 pt-4 border-t border-gray-100 relative z-10">
+          <button onClick={onSkip} className="w-full py-2.5 text-gray-500 hover:text-emerald-600 text-sm font-medium transition-colors">
+            {language === 'ms' ? 'Cuba Akaun Demo' : 'Try Demo Account'}
           </button>
         </div>
       </div>

@@ -15,7 +15,7 @@ export default function MobileHeader({ onMenuClick, shopName }) {
         <span className="font-bold text-gray-800">{shopName || 'SenangPOS'}</span>
       </div>
       
-      <div className="w-10" /> {/* Spacer for centering */}
+      <div className="w-10" aria-hidden="true" /> {/* Spacer for centering */}
     </header>
   );
 }

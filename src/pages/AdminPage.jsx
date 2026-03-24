@@ -251,14 +251,17 @@ export default function AdminPage() {
                     <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                       <ShoppingBag size={24} className="text-blue-600" />
                     </div>
-                    <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full font-medium">{dateRange}</span>
+                    <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full font-medium">{dateRange === 'week' ? '7 Days' : dateRange === 'month' ? '30 Days' : 'All Time'}</span>
                   </div>
                   <p className="text-sm text-gray-500">Total Orders</p>
                   <p className="text-2xl font-bold text-gray-800">{totalOrders}</p>
                 </div>
                 <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-3">
-                    <Users size={24} className="text-purple-600" />
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                      <Users size={24} className="text-purple-600" />
+                    </div>
+                    <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full font-medium">Total</span>
                   </div>
                   <p className="text-sm text-gray-500">Active Sellers</p>
                   <p className="text-2xl font-bold text-gray-800">{activeUsers}</p>

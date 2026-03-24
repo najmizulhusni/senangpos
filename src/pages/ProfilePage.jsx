@@ -255,7 +255,7 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                             <div className={`w-8 h-8 ${selectedSubject.bg} rounded-lg flex items-center justify-center`}>
                               <selectedSubject.icon size={16} className={selectedSubject.color} />
                             </div>
-                            <span className="text-gray-800">{t(supportForm.subject.toLowerCase().replace(' ', ''))}</span>
+                            <span className="text-gray-800">{t(supportForm.subject.toLowerCase().replace(/\s/g, ''))}</span>
                           </div>
                         ) : (
                           <span className="text-gray-400">{t('selectSubject')}</span>
@@ -280,7 +280,7 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                               <div className={`w-8 h-8 ${subject.bg} rounded-lg flex items-center justify-center`}>
                                 <subject.icon size={16} className={subject.color} />
                               </div>
-                              <span className="text-sm text-gray-700">{t(subject.value.toLowerCase().replace(' ', ''))}</span>
+                              <span className="text-sm text-gray-700">{t(subject.value.toLowerCase().replace(/\s/g, ''))}</span>
                             </button>
                           ))}
                         </div>
