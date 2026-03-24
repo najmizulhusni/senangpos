@@ -371,7 +371,7 @@ function POSApp() {
                             </div>
                             <div className="text-xs text-gray-500 space-y-0.5">
                               {order.items.slice(0, 3).map((item, idx) => (<div key={idx}>{item.qty}x {item.name}</div>))}
-                              {order.items.length > 3 && <div className="text-gray-400">+{order.items.length - 3} more</div>}
+                              {order.items.length > 3 && <div className="text-gray-400">+{order.items.length - 3} {t('moreItems')}</div>}
                             </div>
                           </div>
                         ))}
@@ -390,7 +390,7 @@ function POSApp() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ShoppingCart size={32} className="text-blue-600" />
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 9.5h20"/></svg>
             </div>
             <h3 className="font-bold text-xl text-gray-800 mb-2">{t('confirmQRPayment')}</h3>
             <p className="text-gray-500 mb-4">{t('customerPaidQR')}</p>

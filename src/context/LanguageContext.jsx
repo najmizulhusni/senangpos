@@ -146,6 +146,8 @@ const translations = {
     updateStock: 'Update Stock',
     otherAmount: 'Other amount',
     close: 'Close',
+    moreItems: 'more',
+    confirmLogout: 'Logout?',
   },
   ms: {
     // Navigation
@@ -292,6 +294,8 @@ const translations = {
     updateStock: 'Kemaskini Stok',
     otherAmount: 'Jumlah lain',
     close: 'Tutup',
+    moreItems: 'lagi',
+    confirmLogout: 'Log keluar?',
   }
 };
 

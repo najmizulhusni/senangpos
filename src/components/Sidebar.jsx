@@ -14,7 +14,7 @@ export default function Sidebar({ view, setView, isOpen, onToggle }) {
   ];
 
   const handleLogout = async () => {
-    if (confirm(language === 'ms' ? 'Log keluar?' : 'Logout?')) await signOut();
+    if (confirm(t('confirmLogout'))) await signOut();
   };
 
   return (
