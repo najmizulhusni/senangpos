@@ -219,7 +219,7 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                               <div className={`w-8 h-8 ${selectedSubject.bg} rounded-lg flex items-center justify-center`}>
                                 <selectedSubject.icon size={16} className={selectedSubject.color} />
                               </div>
-                              <span className="text-gray-800">{t(supportForm.subject.toLowerCase().replace(/\s/g, ''))}</span>
+                              <span className="text-gray-800">{selectedSubject.value}</span>
                             </div>
                           ) : (
                             <span className="text-gray-400">{t('selectSubject')}</span>
@@ -233,7 +233,7 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                                 <div className={`w-8 h-8 ${subject.bg} rounded-lg flex items-center justify-center`}>
                                   <subject.icon size={16} className={subject.color} />
                                 </div>
-                                <span className="text-sm text-gray-700">{t(subject.value.toLowerCase().replace(/\s/g, ''))}</span>
+                                <span className="text-sm text-gray-700">{subject.value}</span>
                               </button>
                             ))}
                           </div>
@@ -285,7 +285,7 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                                 <span className="text-xs text-gray-400">{new Date(ticket.created_at).toLocaleDateString(language === 'ms' ? 'ms-MY' : 'en-MY', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                               </div>
                             </div>
-                            <h4 className="font-semibold text-gray-800 text-sm mb-1">{t(ticket.subject.toLowerCase().replace(/\s/g, ''))}</h4>
+                            <h4 className="font-semibold text-gray-800 text-sm mb-1">{ticket.subject}</h4>
                             <p className="text-sm text-gray-600">{ticket.message}</p>
 
                             {/* Admin Reply */}
