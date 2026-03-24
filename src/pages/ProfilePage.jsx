@@ -1,15 +1,16 @@
-import { useState, useRef, useEffect } from 'react';
-import { User, Phone, Save, Mail, Calendar, Shield, Globe, HelpCircle, Send, MessageCircle, ChevronDown, Bug, Lightbulb, CreditCard, UserCog, MoreHorizontal, Clock, CheckCircle, Loader2, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Phone, Save, Mail, Calendar, Shield, Globe, HelpCircle, Send, MessageCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
+import CustomDropdown from '../components/CustomDropdown';
 
 const SUPPORT_SUBJECTS = [
-  { value: 'Bug Report', icon: Bug, color: 'text-red-500', bg: 'bg-red-50' },
-  { value: 'Feature Request', icon: Lightbulb, color: 'text-amber-500', bg: 'bg-amber-50' },
-  { value: 'Payment Issue', icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-50' },
-  { value: 'Account Help', icon: UserCog, color: 'text-purple-500', bg: 'bg-purple-50' },
-  { value: 'Other', icon: MoreHorizontal, color: 'text-gray-500', bg: 'bg-gray-50' },
+  { value: 'Bug Report', label: 'Bug Report' },
+  { value: 'Feature Request', label: 'Feature Request' },
+  { value: 'Payment Issue', label: 'Payment Issue' },
+  { value: 'Account Help', label: 'Account Help' },
+  { value: 'Other', label: 'Other' },
 ];
 
 export default function ProfilePage({ initialTab = 'profile' }) {
@@ -18,8 +19,6 @@ export default function ProfilePage({ initialTab = 'profile' }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
   const [tickets, setTickets] = useState([]);
   const [ticketsLoading, setTicketsLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -30,14 +29,6 @@ export default function ProfilePage({ initialTab = 'profile' }) {
     address: profile?.address || '',
   });
   const [supportForm, setSupportForm] = useState({ subject: '', message: '' });
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false);
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   useEffect(() => {
     if (user && activeTab === 'support') fetchTickets();
@@ -83,8 +74,6 @@ export default function ProfilePage({ initialTab = 'profile' }) {
     }
     setSubmitLoading(false);
   };
-
-  const selectedSubject = SUPPORT_SUBJECTS.find(s => s.value === supportForm.subject);
 
   const getStatusBadge = (status) => {
     if (status === 'open') return { text: t('statusOpen'), cls: 'bg-amber-100 text-amber-700' };
@@ -230,33 +219,12 @@ export default function ProfilePage({ initialTab = 'profile' }) {
                   <div className="space-y-4 mt-5">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">{t('subject')}</label>
-                      <div className="relative" ref={dropdownRef}>
-                        <button type="button" onClick={() => setDropdownOpen(!dropdownOpen)} className={`w-full flex items-center justify-between border rounded-xl px-4 py-3 text-sm transition-all ${dropdownOpen ? 'border-emerald-500 ring-2 ring-emerald-100' : 'border-gray-200 hover:border-gray-300'}`}>
-                          {selectedSubject ? (
-                            <div className="flex items-center gap-3">
-                              <div className={`w-8 h-8 ${selectedSubject.bg} rounded-lg flex items-center justify-center`}>
-                                <selectedSubject.icon size={16} className={selectedSubject.color} />
-                              </div>
-                              <span className="text-gray-800">{selectedSubject.value}</span>
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">{t('selectSubject')}</span>
-                          )}
-                          <ChevronDown size={18} className={`text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
-                        </button>
-                        {dropdownOpen && (
-                          <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-                            {SUPPORT_SUBJECTS.map((subject) => (
-                              <button key={subject.value} type="button" onClick={() => { setSupportForm({ ...supportForm, subject: subject.value }); setDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${supportForm.subject === subject.value ? 'bg-emerald-50' : ''}`}>
-                                <div className={`w-8 h-8 ${subject.bg} rounded-lg flex items-center justify-center`}>
-                                  <subject.icon size={16} className={subject.color} />
-                                </div>
-                                <span className="text-sm text-gray-700">{subject.value}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                      <CustomDropdown
+                        value={supportForm.subject}
+                        onChange={(val) => setSupportForm({ ...supportForm, subject: val })}
+                        placeholder={t('selectSubject')}
+                        options={SUPPORT_SUBJECTS}
+                      />
                     </div>
 
                     <div>

@@ -11,6 +11,7 @@ import ProfilePage from './pages/ProfilePage';
 import AdminPage from './pages/AdminPage';
 import MenuCard from './components/MenuCard';
 import Cart from './components/Cart';
+import CustomDropdown from './components/CustomDropdown';
 import { getFoodIcon } from './components/FoodIcons';
 
 const DEFAULT_MENU = [
@@ -420,13 +421,21 @@ function POSApp() {
               <input type="text" placeholder={t('itemName')} value={modalItem.name} onChange={(e) => setModalItem({...modalItem, name: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
               <input type="number" step="0.01" placeholder={`${t('price')} (RM)`} value={modalItem.price} onChange={(e) => setModalItem({...modalItem, price: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
               <div className="grid grid-cols-2 gap-3">
-                <select value={modalItem.category} onChange={(e) => setModalItem({...modalItem, category: e.target.value})} className="border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none">
-                  <option value="main">{t('mainDishes')}</option>
-                  <option value="addon">{t('addons')}</option>
-                </select>
-                <select value={modalItem.icon} onChange={(e) => setModalItem({...modalItem, icon: e.target.value})} className="border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none">
-                  {ICON_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                </select>
+                <CustomDropdown
+                  value={modalItem.category}
+                  onChange={(val) => setModalItem({...modalItem, category: val})}
+                  placeholder={t('category')}
+                  options={[
+                    { value: 'main', label: t('mainDishes') },
+                    { value: 'addon', label: t('addons') },
+                  ]}
+                />
+                <CustomDropdown
+                  value={modalItem.icon}
+                  onChange={(val) => setModalItem({...modalItem, icon: val})}
+                  placeholder={t('icon')}
+                  options={ICON_OPTIONS.map(opt => ({ value: opt.value, label: opt.label }))}
+                />
               </div>
               <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl"><span className="text-sm text-gray-600">{t('preview')}:</span>{getFoodIcon(modalItem.icon, 56)}</div>
               <div className="grid grid-cols-2 gap-3">
